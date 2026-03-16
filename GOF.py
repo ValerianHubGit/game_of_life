@@ -5,7 +5,7 @@ import numpy as np
 #Set Variables
 width = 1000
 height = 1000
-FPS = 120
+FPS = 30
 size = 10
 alive_color = (210, 210, 210)
 unalive_color= (25, 25, 25)
@@ -35,8 +35,8 @@ def init_grid(rows, cols, random=True):
 
 #kreiere Pygame-Screen mit Grid und Klickbaren Feldern zum Alive/Unalive - Triggern
 def main():
-    #alive cells get a 1, unalive cells get 0, initialize randomly
-    cells=init_grid(width//size, height//size)
+    #alive cells get a 1, unalive cells get 0, initialize (randomly?)
+    cells=init_grid(width//size, height//size, True)
 
     pygame.init()
     screen=pygame.display.set_mode((width, height))
@@ -44,7 +44,7 @@ def main():
 
     clock=pygame.time.Clock()
 
-    running=True
+    running=False
     #öffne Fenster
     while True:
         #Core Mechanic
@@ -64,13 +64,13 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key==pygame.K_SPACE:
                     running= not running
-            #Manuell Draw
-            if pygame.mouse.get_pressed()[0]:
+            #Manual Draw on click-event
+            if event.type==pygame.MOUSEBUTTONDOWN:
                 loc = pygame.mouse.get_pos()
                 prior_value=cells[loc[0]//size, loc[1]//size]
                 new_value=1 if prior_value==0 else 0
                 cells[(loc[0]//size, loc[1]//size)]=new_value
-                pygame.display.update()        
+                pygame.display.update()                
 
 #apparently notwendig um nicht bei Import pygame ständig auszuführen
 if __name__=="__main__":
