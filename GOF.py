@@ -3,12 +3,13 @@ import pygame
 import numpy as np
 
 #Set Variables
-width = 1000
-height = 1000
+width = 1200
+height = 1200
 FPS = 30
 size = 10
 alive_color = (210, 210, 210)
 unalive_color= (25, 25, 25)
+solid_color= (200, 200, 0)
 
 def draw(screen, cells):
     screen.fill(unalive_color)
@@ -16,10 +17,28 @@ def draw(screen, cells):
         if cells[row,col]:
             pygame.draw.rect(screen, alive_color, (row*size, col*size, size-1, size-1))
 
+def identify_solid_cells(screen, cells):
+    objects=[]
+    updated_cells=update(cells)
+    for row, col in np.ndindex(cells.shape):
+        if cells[(row, col)]:    
+            left=max(row-1, 0)
+            right=min(row+2, cells.shape[0])
+            top=min(col+2, cells.shape[1])
+            bottom=max(col-1, 0)
+            if np.array_equal(cells[left:right,bottom:top], updated_cells[left:right,bottom:top]):
+                pygame.draw.rect(screen, solid_color, (row*size, col*size, size-1, size-1))
+                
+
 def update(cells):
     updated_cells=np.zeros((cells.shape[0], cells.shape[1]))
     for row, col in np.ndindex(cells.shape):
-        no_neighbours=np.sum(cells[row-1:row+2,col-1:col+2])-cells[row, col]
+        #Summe über Nachbarn, unter Berücksichtigung des korrekten Slicings am Rand
+        left=max(row-1, 0)
+        right=min(row+2, cells.shape[0])
+        top=min(col+2, cells.shape[1])
+        bottom=max(col-1, 0)
+        no_neighbours=np.sum(cells[left:right,bottom:top])-cells[row, col]
         #Remains alive?
         if cells[(row,col)] and no_neighbours in [2,3]:
             updated_cells[(row, col)] = 1
@@ -51,7 +70,8 @@ def main():
         clock.tick(FPS)
         if running:
             cells=update(cells)
-        draw(screen, cells)        
+        draw(screen, cells)
+        identify_solid_cells(screen, cells)        
         pygame.display.update()
         
         #Inputs
