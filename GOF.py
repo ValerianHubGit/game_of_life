@@ -5,7 +5,7 @@ import numpy as np
 #Set Variables
 width = 1000
 height = 1000
-FPS = 60
+FPS = 120
 size = 10
 alive_color = (210, 210, 210)
 unalive_color= (25, 25, 25)
@@ -46,10 +46,11 @@ def main():
 
     running=True
     #öffne Fenster
-    while running:
+    while True:
         #Core Mechanic
         clock.tick(FPS)
-        cells=update(cells)
+        if running:
+            cells=update(cells)
         draw(screen, cells)        
         pygame.display.update()
         
@@ -59,6 +60,17 @@ def main():
             if event.type==pygame.QUIT:
                 pygame.quit()
                 return
+            #Pausieren
+            if event.type == pygame.KEYDOWN:
+                if event.key==pygame.K_SPACE:
+                    running= not running
+            #Manuell Draw
+            if pygame.mouse.get_pressed()[0]:
+                loc = pygame.mouse.get_pos()
+                prior_value=cells[loc[0]//size, loc[1]//size]
+                new_value=1 if prior_value==0 else 0
+                cells[(loc[0]//size, loc[1]//size)]=new_value
+                pygame.display.update()        
 
 #apparently notwendig um nicht bei Import pygame ständig auszuführen
 if __name__=="__main__":
